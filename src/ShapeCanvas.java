@@ -2,7 +2,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-
 import java.util.ArrayList;
 
 class ShapeCanvas extends Canvas {
@@ -11,6 +10,10 @@ class ShapeCanvas extends Canvas {
     public static ShapeCanvas getInstance() {
         return ourInstance;
     }
+
+    int widthScreenInPixels = 1920;
+    int heighScreenInPixels = 1080;
+    double diagonalScreeninInches = 15.0;
 
     ArrayList<Shape> shapeQueue = new ArrayList<>();
     ArrayList<Shape> shapes = new ArrayList<>();
@@ -40,7 +43,7 @@ class ShapeCanvas extends Canvas {
         this.getGraphicsContext2D().setFill(Color.GREEN);
         if (someShape instanceof Circle) {
             Circle someCircle = (Circle) someShape;
-            this.getGraphicsContext2D().fillPolygon(someCircle.getXs(), someCircle.getYs(), someCircle.vertices.length);
+            this.getGraphicsContext2D().fillPolygon(someCircle.getXs(), someCircle.getYs(), someCircle.vertexOffsets.length);
         }
     }
     void erase() {
