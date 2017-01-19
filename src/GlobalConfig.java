@@ -3,6 +3,8 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
+import java.util.HashMap;
+
 class GlobalConfig {
 
     static final int SCREEN_HEIGHT_DEFAULT = 1920;
@@ -22,19 +24,35 @@ class GlobalConfig {
             "Sun", "Mercury", "Venus", "Earth", "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune");
 
     static final Color DEFAULT_COLOR = Color.GREEN;
+    static final String DEFAULT_PLANET = "Earth";
 
     // PHYSICS
-    // units => pixels/second^2 (given a 1080 13in display; ppi = 169)
-    static final Point2D SUN_GRAVITY = new Point2D(0, 140233.2);
-    static final Point2D MERCURY_GRAVITY = new Point2D(0, 1944.84);
-    static final Point2D VENUS_GRAVITY = new Point2D(0, 4503.84);
-    static final Point2D EARTH_GRAVITY = new Point2D(0, 5019);
-    static final Point2D MOON_GRAVITY = new Point2D(0, 830);
-    static final Point2D MARS_GRAVITY = new Point2D(0, 1944.84);
-    static final Point2D JUPITER_GRAVITY = new Point2D(0, 12795);
-    static final Point2D SATURN_GRAVITY = new Point2D(0, 5322.72);
-    static final Point2D URANUS_GRAVITY = new Point2D(0, 5322.72);
-    static final Point2D NEPTUNE_GRAVITY = new Point2D(0, 7062.84);
+    // units => inches/second^2
+    private static final Point2D SUN_GRAVITY = new Point2D(0, 10787.40);
+    private static final Point2D MERCURY_GRAVITY = new Point2D(0, 149.61);
+    private static final Point2D VENUS_GRAVITY = new Point2D(0, 346.46);
+    private static final Point2D EARTH_GRAVITY = new Point2D(0, 385.83);
+    private static final Point2D MOON_GRAVITY = new Point2D(0, 63.78);
+    private static final Point2D MARS_GRAVITY = new Point2D(0, 149.61);
+    private static final Point2D JUPITER_GRAVITY = new Point2D(0, 12795);
+    private static final Point2D SATURN_GRAVITY = new Point2D(0, 409.45);
+    private static final Point2D URANUS_GRAVITY = new Point2D(0, 409.45);
+    private static final Point2D NEPTUNE_GRAVITY = new Point2D(0, 543.31);
+
+    static final HashMap<String, Point2D> GRAVITY_CONSTANTS;
+    static {
+        GRAVITY_CONSTANTS = new HashMap<>();
+        GRAVITY_CONSTANTS.put(PLANETS.get(0), SUN_GRAVITY);
+        GRAVITY_CONSTANTS.put(PLANETS.get(1), MERCURY_GRAVITY);
+        GRAVITY_CONSTANTS.put(PLANETS.get(2), VENUS_GRAVITY);
+        GRAVITY_CONSTANTS.put(PLANETS.get(3), EARTH_GRAVITY);
+        GRAVITY_CONSTANTS.put(PLANETS.get(4), MOON_GRAVITY);
+        GRAVITY_CONSTANTS.put(PLANETS.get(5), MARS_GRAVITY);
+        GRAVITY_CONSTANTS.put(PLANETS.get(6), JUPITER_GRAVITY);
+        GRAVITY_CONSTANTS.put(PLANETS.get(7), SATURN_GRAVITY);
+        GRAVITY_CONSTANTS.put(PLANETS.get(8), URANUS_GRAVITY);
+        GRAVITY_CONSTANTS.put(PLANETS.get(9), NEPTUNE_GRAVITY);
+    }
 
     // shape sizes
     static final int HEIGHT_DEFAULT_RECTANGLE = 30;

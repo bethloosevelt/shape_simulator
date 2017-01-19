@@ -2,7 +2,8 @@ import javafx.geometry.Point2D;
 import javafx.animation.AnimationTimer;
 
 class Physics extends AnimationTimer {
-    Point2D gravitationalForce = GlobalConfig.EARTH_GRAVITY;
+    Point2D gravitationalForce = inchesPerSecondPerSecondToPixels(GlobalConfig.GRAVITY_CONSTANTS.get(GlobalConfig.DEFAULT_PLANET));
+
     long lastTimestamp = 0;
     public void handle(long timestamp) {
         ShapeCanvas.getInstance().erase();
@@ -38,27 +39,19 @@ class Physics extends AnimationTimer {
         ShapeCanvas.getInstance().drawShape(someShape);
     }
 
+    Point2D inchesPerSecondPerSecondToPixels(Point2D gravitationalForce) {
+
+        // this is the pythagorean theorem essentially
+        double diagonal = ShapeCanvas.getInstance().diagonalScreeninInches;
+        int width = ShapeCanvas.getInstance().widthScreenInPixels;
+        int height = ShapeCanvas.getInstance().heighScreenInPixels;
+        int pixelsPerInchSquared = (int) Math.floor(Math.sqrt((width*width) + (height*height)) / diagonal);
+        int pixelsPerInch = (int) Math.sqrt(pixelsPerInchSquared);
+        gravitationalForce = gravitationalForce.multiply(pixelsPerInch);
+        return gravitationalForce;
+    }
+
     void updateGravity(String planet) {
-        switch (planet) {
-            case "Sun": gravitationalForce = GlobalConfig.SUN_GRAVITY;
-                break;
-            case "Mercury": gravitationalForce = GlobalConfig.MERCURY_GRAVITY;
-                break;
-            case "Venus": gravitationalForce = GlobalConfig.VENUS_GRAVITY;
-                break;
-            case "Earth": gravitationalForce = GlobalConfig.EARTH_GRAVITY;
-                break;
-            case "Moon": gravitationalForce = GlobalConfig.MOON_GRAVITY;
-                break;
-            case "Mars": gravitationalForce = GlobalConfig.MARS_GRAVITY;
-                break;
-            case "Jupiter": gravitationalForce = GlobalConfig.JUPITER_GRAVITY;
-                break;
-            case "Saturn": gravitationalForce = GlobalConfig.SATURN_GRAVITY;
-                break;
-            case "Uranus": gravitationalForce = GlobalConfig.URANUS_GRAVITY;
-                break;
-            case "Neptune": gravitationalForce = GlobalConfig.NEPTUNE_GRAVITY;
-        }
+        this.gravitationalForce = inchesPerSecondPerSecondToPixels(GlobalConfig.GRAVITY_CONSTANTS.get(planet));
     }
 }
