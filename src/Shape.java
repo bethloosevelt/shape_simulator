@@ -10,7 +10,7 @@ abstract class Shape {
     void setVelocity(Point2D newVelocity) {
         velocity = newVelocity;
     }
-    void updateVelocity(double secondsPassed, Point2D forceApplied) {
+    void applyForce(double secondsPassed, Point2D forceApplied) {
         velocity = velocity.add(forceApplied.getX()*secondsPassed, forceApplied.getY()*secondsPassed);
     }
     double[] getXs() {
@@ -39,7 +39,12 @@ abstract class Shape {
     void nextPosition() {
         setPosition(center.add(velocity));
     }
+
+    void placeAtRest(Point2D restingCenter) {
+        setPosition(restingCenter);
+        setVelocity(new Point2D(0, 0));
+        forcesBalanced = true;
+    }
     abstract int distanceToEdgeFromCenter();
-    abstract void placeAtRest(Point2D restingCenter);
     abstract void setVertexOffsets();
 }

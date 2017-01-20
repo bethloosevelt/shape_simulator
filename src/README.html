@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dale Wesa</title>
+</head>
+<body>
+    <h2>Dale Wesa - Homework 1</h2>
+
+    <h3>General Approach</h3>
+        <p>In beginning my design for this project I saw three main pieces: canvas/interface, shape class, and physics engine.</p>
+        <p>As with all great designs, it is a bastardisation of a commonly used method. In this case primarily MVC.</p>
+        <p>the view is split between the App class, where the interface is configured and dealt with, and the ShapeCanvas class
+            which handles the actual drawing of things in the view</p>
+        <p>in similar fashion, the main controller is the Pysics class, which in turn delegates certain tasks to the shapes themselves
+            as far as updating velocity by applying a force</p>
+        <p>the model then is the shapes themselves, and arguably the configuration of the Physics controller</p>
+        <p>the shapes hold all of the information about their individual velocity vectors, size, vertex offsets, location etc</p>
+
+        <p>I wanted to make things as compartmentalized as seemed appropriate. Keep functionality related to the UI
+            in one class, the shape logic in another, all of the Physics in another, everything related to actually drawing
+            a shape, or creating a new one, in the Canvas class, and finally all of my configuration for the whole app in one
+            GlobalConfig class</p>
+
+        <p>In the following sections I will go into detail about my design decisions on a Class level</p>
+
+    <h3>Physics</h3>
+        <p>The first thing you might notice is the divergence from Swing and TimerTask. I wrote this application initially in
+            swing, but found the interface builder to be heavily outdated, and the timer to cause flickering. I decided then to
+            refactor using Javafx. Javafx has a built in clock for animating objects, passing the runable bit of code a timestamp
+            each time it refreshes. From there I was able to calculate time passed and update my velocities based on gravity accordingly.
+            I will talk more about Javafx in the upcoming sections</p>
+        <p>In designing my physics engine, from the start I knew I wanted to mimic real gravity. This lead me to give each shape
+            a velocity vector, and store gravitational forces in my configuration file(converted to inches / second / second).
+            The thinking was, I will simply have a frame rate of the universe, and for each frame, I will check each object, if the forces are not
+            balanced, the forces will be applied, and the model will be updated.
+            The decision to store gravity constants as points is because I am computing them as vectors. This leaves the door open
+            to apply other forces, such as wind resistance.</p>
+        <p>The gravitational force is stored in this class as a data member, since it is computed into pixels/s/s based on the user input
+            for screen size and resolution. Essentially we calculate the Pixels Per Linear Inch then multiply by the gravitational constant
+            (in/s/s) to get our gravitational constant in pixels/s/s. The main point here is that this is a dynamic value based
+            on screen resolution and size, so as to recreate the real world distance traveled per second by a falling object</p>
+        <p>I actually did spend a great deal of time trying to put together wind resistance based on size and mass of spheres, different
+            temperatures and pressures, but I ran out of time and got sick, so maybe another time.</p>
+        <p>I also decided to put collision detection into the Physics Class as well. It belongs there as it's simply part of generating the
+            next frame of the universe, and determining where to place our shapes. Collision detection simply checks if a shape's center is
+            + the distance from its center to its bottom edge is at or below the bottom of the canvas. If it is, the shape is said to be at rest with its
+            forces balanced, and it is placed on the bottom of the screen</p>
+
+    <h3>Shape</h3>
+        <p>Thinking about the Open Closed Principle, the use of different shapes in this project seemed to call for an abstract shape
+            class. The abstract method would provide the Physics controller general methods for Updating velocity, checking collision, and
+            redrawing the shape. The Physics class wouldn't need to think about what kind of Shape this actually was, as the methods would have the same
+            names, but implementation specific to its identity as a rectangle or circle</p>
+    <h4>Circle:</h4>
+        <p>so as not to compute the tessellation of a circle every single time we draw one, the decision was made to have a
+            singleton configuration class that would pre-compute vertex offsets around the origin based on a user specified
+            radius and side number. Once computed, the Circle class can grab a copy of those offsets and store it in its self.
+            The reason it stores a copy is so that a user can change the size or tessellation without disturbing the existing circles.</p>
+        <p>I decided to make CircleConfig a singleton as it would act as a dynamic configuration called when creating a new circle. In
+            Short, I'd only need one, and this guarantees I'm not spawning a new configuration object every time I change my config.</p>
+        <p>once a circle is created, it updates it's vertices by receiving a new center point, then adding that to the offsets, and storing
+            the result in a vector called vertices. I chose to keep both the vertex array and the vertex offset array because without having both,
+            each time we move the shape, we would have to calculate the delta between the last center and the new one, and this seemed, while less spacially,
+            responsible, more clear and less computationally intensive.</p>
+    <h4>Shape:</h4>
+        <p>I chose the methods for shape to comply with the needs of the Physics and Canvas classes. Canvas needs to be able to
+            get the x values and y values for each shape in order to draw it. Physics needs to have a method where it can pass a time
+            interval and have the velocity and position updated. I chose to make it abstract, as said above, to comply with the open closed principle.
+            Now if I want to add more shapes, I have to simply implement 3 methods to aide in collision detection, initialization, and positioning.</p>
+        <p>the decision to keep velocities in the shapes came from a fundamental feeling that velocity, and the way a force acts upon an object,
+            are inherently properties of that object. I could have placed that logic in the Physics class, but as the velocity affected vertices and
+            center points, it felt more reasonable to glue it to the Shapes themselves, thereby muddling my Model and Controller a bit. I think this
+            is a fine trade off that at the end of the day keeps the physics engine simple</p>
+    <H3>App</H3>
+        <p>App is our entry point, and what I consider to be our main view. Yes, it has buttons that will affect the way the Physics controller
+            and the ShapeCanvas behave, but its main purpose is to build a window, build a UI, initialize our main components, and begin the simulation</p>
+        <p>I think the messiest part of this class, and perhaps the whole project, is the building of the UI components. I didn't decide on a
+            concise way for turning the formation of a label or a textbox into a simple function. In the end you would have to pass several parameters, and only
+            be saving maybe 10-15 lines of code in the whole project. I decided not to worry about that, as to me it is readable, and not too large that you
+            cannot digest what is happening.</p>
+        <p>Two of the buttons simply call a lambda expression as a runnable (clear and shape type), but for the submit button in the config
+            screen I decided to create a method in the App class that returns a built runnable Task. I went for this approach
+            so that when looking at the UI construction, you can simply see that submit calls something called applyConfiguration(), and if you want to
+            know more about what that entails, you can then go and look at that piece of code. Essentially I broke it up because it didn't fit on one line, and
+            needed to do read multiple forms rather than simply toggle a boolean</p>
+        <p>App is another place where javafx shines. Compared to swing, javafx made building my UI very simple. I was able to set up
+            a grid, place things easily, and register onclick events much faster than I was able to in swing. I was reading that you can
+            actually use javafx to render html, and other markup, so next time I might look into using that to create my view</p>
+        <p>Another flaw is I haven't implemented any check on the input, so make sure you type in real numbers and don't leave anything blank.</p>
+    <H3>Shape Canvas</H3>
+        <p>The last piece of the puzzle is the model/ViewController ShapeCanvas. I say it is partially a model, because I have chosen
+            to store the shapes in an array list held in shape canvas. I think you could argue well enough that this array belongs in the
+            Physics engine, and were I to refactor, I think I would do that. So, there's another flaw haha.</p>
+        <p>I wanted the Shape Canvas to deal with every bit of actual drawing that would be pushed onto the view. It really is more
+            of a View Controller than anything. I wanted an abstraction where I could simply pass a shape object to a method, and it would
+            appear in my view. </p>
+        <p>There is also a method for clearing the screen, used before rendering each new frame</p>
+        <p>Buffer: The reason I included a shape buffer, was because I was getting errors from concurrent access of my shape list
+            as a result of the physics engine rendering a new frame at the same time as I was clicking to build a new shape. By adding each
+            new shape to a buffer, the physics engine can then empty that buffer on its own time, and we no longer have that error occurring</p>
+        <p>Another bonus to using javafx is that AnimationTimer pre-renders the frame before displaying. This allowed me to get rid of choppiness in my
+            animation. It also will also run on the same thread where a TimerTask will spin up a new one, and thus takes less resources</p>
+        <p>I should also add that I made this class a singleton as well because I wanted to be able to access it from anywhere and get the same
+            instance, and only one instance, every time</p>
+    <H3>Final thoughts:</H3>
+        <p>There are obviously and always things I would do differently another time around. However I feel that this design
+            appropriately achieved my goal to simulate gravitational force in a vacuum on different planets, adjusted to pixel density.
+            I went for a mostly MVC approach, complecting the sections a bit here and there, but overall am happy with the structure
+            and behaviour of my project.</p>
+        <p>If you want to see some of my calculations, I'm including a spreadsheet that I used to determine the gravitational constants. Also
+            on that sheet you will see some of my calculations to try and implement wind resistance.. maybe next time...</p>
+
+    <h4>References</h4>
+        <p> fine tuning AnimationTimer
+            <a href="https://docs.oracle.com/javase/8/javafx/api/javafx/animation/AnimationTimer.html">https://docs.oracle.com/javase/8/javafx/api/javafx/animation/AnimationTimer.html</a>
+        </p>
+        <p> decision to use built in javafx AnimationTimer:
+            <a href="http://stackoverflow.com/questions/36459710/javafx-canvas-double-buffering">http://stackoverflow.com/questions/36459710/javafx-canvas-double-buffering</a>
+        </p>
+        <p> basic javafx UI building
+            <a href=">http://docs.oracle.com/javase/8/javafx/get-started-tutorial/get_start_apps.htm#JFXST804">>http://docs.oracle.com/javase/8/javafx/get-started-tutorial/get_start_apps.htm#JFXST804</a>
+        </p>
+</body>
+</html>

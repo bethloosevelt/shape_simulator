@@ -19,12 +19,6 @@ class Circle extends Shape {
     int distanceToEdgeFromCenter() {
         return radius;
     }
-
-    void placeAtRest(Point2D restingCenter) {
-        setPosition(restingCenter);
-        setVelocity(new Point2D(0, 0));
-        forcesBalanced = true;
-    }
 }
 
 class CircleConfig {

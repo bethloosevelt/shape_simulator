@@ -34,7 +34,7 @@ class Physics extends AnimationTimer {
     private void moveShape(Shape someShape, long elapsedTime) {
         // elapsed time is in nanoseconds
         double elapsedSeconds = elapsedTime / 1000000000.0;
-        someShape.updateVelocity(elapsedSeconds, gravitationalForce);
+        someShape.applyForce(elapsedSeconds, gravitationalForce);
         someShape.nextPosition();
         ShapeCanvas.getInstance().drawShape(someShape);
     }

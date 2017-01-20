@@ -14,6 +14,7 @@ class ShapeCanvas extends Canvas {
     int widthScreenInPixels = 1920;
     int heighScreenInPixels = 1080;
     double diagonalScreeninInches = 15.0;
+    boolean shapetype = true;
 
     ArrayList<Shape> shapeQueue = new ArrayList<>();
     ArrayList<Shape> shapes = new ArrayList<>();
@@ -26,9 +27,16 @@ class ShapeCanvas extends Canvas {
     }
     private void setUpMouseListener() {
         this.setOnMouseClicked(event -> {
-            Circle newCircle = new Circle(new Point2D(event.getX(), event.getY()));
-            drawShape(newCircle);
-            shapeQueue.add(newCircle);
+
+            if (shapetype) {
+                Circle newCircle = new Circle(new Point2D(event.getX(), event.getY()));
+                drawShape(newCircle);
+                shapeQueue.add(newCircle);
+            } else {
+                Rectangle newRectangle = new Rectangle(new Point2D(event.getX(), event.getY()));
+                drawShape(newRectangle);
+                shapeQueue.add(newRectangle);
+            }
         });
     }
     // the queue was added to avoid simultaneous use of the ArrayList "shapes" by both the user using the mouse,
@@ -41,10 +49,8 @@ class ShapeCanvas extends Canvas {
     }
     void drawShape(Shape someShape) {
         this.getGraphicsContext2D().setFill(Color.GREEN);
-        if (someShape instanceof Circle) {
-            Circle someCircle = (Circle) someShape;
-            this.getGraphicsContext2D().fillPolygon(someCircle.getXs(), someCircle.getYs(), someCircle.vertexOffsets.length);
-        }
+        getGraphicsContext2D().fillPolygon(someShape.getXs(), someShape.getYs(), someShape.vertexOffsets.length);
+
     }
     void erase() {
         GraphicsContext graphicsController = this.getGraphicsContext2D();

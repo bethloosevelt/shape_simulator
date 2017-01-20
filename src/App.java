@@ -59,6 +59,14 @@ public class App extends Application {
         clearButton.setOnAction(event -> ShapeCanvas.getInstance().shapes.removeAll(ShapeCanvas.getInstance().shapes));
         clearButton.setLayoutX(80);
         this.root.getChildren().add(clearButton);
+
+
+        Button shapeTypeButton = new Button();
+        shapeTypeButton.setText("shape toggle");
+        shapeTypeButton.setOnAction(event -> ShapeCanvas.getInstance().shapetype =
+                                                !ShapeCanvas.getInstance().shapetype);
+        shapeTypeButton.setLayoutX(130);
+        this.root.getChildren().add(shapeTypeButton);
     }
 
     private void createConfigWindow() {
@@ -139,7 +147,6 @@ public class App extends Application {
 
         return (event) -> {
             changeResolution();
-            System.out.println(planetChoice.getValue().toString());
             physicsEngine.updateGravity(planetChoice.getValue().toString());
             CircleConfig.getInstance().updateRadius(Integer.parseInt(radius.getCharacters().toString()));
             CircleConfig.getInstance().updateTessellationResolution(Integer.parseInt(numberOfSides.getCharacters().toString()));
